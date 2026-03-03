@@ -17,4 +17,4 @@ chown -R www-data:www-data /etc/nginx/ssl
 VARS='$HOST_NAME $PORT'
 envsubst "$VARS" < /tmp/nginx.conf.template > /etc/nginx/conf.d/default.conf
 
-exec '$@'
+exec "$@"

@@ -55,7 +55,7 @@ fclean: clean
 	@echo "$(RED)Removing Docker volumes and pruning system...$(NC)"
 	@docker volume rm $(DB_VOLUME) 2>/dev/null || true
 	@docker volume rm $(WP_VOLUME) 2>/dev/null || true
-	@rm -rf $(VOLUME_PATH)
+	@sudo rm -rf $(VOLUME_PATH)
 	@docker system prune -a --force
 
 re: fclean all

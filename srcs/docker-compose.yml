@@ -30,12 +30,13 @@ services:
       WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
       WORDPRESS_USER: ${WORDPRESS_USER}
       WORDPRESS_USER_EMAIL: ${WORDPRESS_USER_EMAIL}
-      WORDPRESS_USER_PASSWORD_FILE: /run/secrets/wp_user_password
+      WORDPRESS_USER_PASSWORD_FILE: /run/secrets/db_user_password
     volumes:
       - wordpress_data:/var/www/html
     secrets:
       - db_password
       - db_admin_password
+      - db_user_password
     depends_on:
       - mariadb
 
@@ -76,11 +77,11 @@ volumes:
       o: bind
 
 secrets:
+  db_user_password:
+    file: ../secrets/db_user_password.txt
   db_root_password:
     file: ../secrets/db_root_password.txt
   db_password:
     file: ../secrets/db_password.txt
   db_admin_password:
     file: ../secrets/db_admin_password.txt
-  wp_user_password:
-    file: ../secrets/wp_user_password.txt

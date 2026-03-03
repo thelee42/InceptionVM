@@ -54,55 +54,50 @@ if [ ! -f wp-config.php ]; then
         --admin_email=$WORDPRESS_ADMIN_EMAIL --path=/var/www/html
     echo "WordPress is installed!"
 
-    echo "Customizing pages..."
+    echo "Creating user and customizing pages..."
 
+    # Create the user
     wp user create "$WORDPRESS_USER" "$WORDPRESS_USER_EMAIL" \
         --role=author \
         --user_pass="$WORDPRESS_USER_PASSWORD" \
         --path=/var/www/html \
         --allow-root
 
-    # Create a post with comments enabled
+    # Delete existing pages and posts
+    PAGE_IDS=$(wp post list --post_type=page --format=ids --allow-root --path=/var/www/html)
+    POST_IDS=$(wp post list --post_type=post --format=ids --allow-root --path=/var/www/html)
+
+    [ -n "$PAGE_IDS" ] && wp post delete $PAGE_IDS --force --allow-root --path=/var/www/html
+    [ -n "$POST_IDS" ] && wp post delete $POST_IDS --force --allow-root --path=/var/www/html
+
+    # Create the "Comments Board" post
     COMMENT_POST_ID=$(wp post create \
         --post_type=post \
         --post_title='Comments Board' \
         --post_content='This is the comment board. Feel free to leave a comment!' \
         --comment_status=open \
         --post_status=publish \
+        --post_author="$WORDPRESS_USER" \
         --porcelain --allow-root --path=/var/www/html)
 
-    # Create redirect plugin
-    mkdir -p /var/www/html/wp-content/mu-plugins
-
-    cat <<EOF > /var/www/html/wp-content/mu-plugins/home-redirect.php
-<?php
-add_action('template_redirect', function() {
-    if (is_front_page()) {
-        wp_redirect(get_permalink($COMMENT_POST_ID));
-        exit;
-    }
-});
-EOF
-    PAGE_IDS=$(wp post list --post_type=page --format=ids --allow-root --path=/var/www/html)
-    POST_IDS=$(wp post list --post_type=post --format=ids --allow-root --path=/var/www/html)
-    
-    [ -n "$PAGE_IDS" ] && wp post delete $PAGE_IDS --force --allow-root --path=/var/www/html
-    [ -n "$POST_IDS" ] && wp post delete $POST_IDS --force --allow-root --path=/var/www/html
-
+    # Create the "Inception Project" page (this will be the front page)
     POST_ID=$(wp post create --post_type=page --post_title='Inception Project' \
-        --post_content='Welcome to thelee s Inception world!' \
+        --post_content='Inception web page by thelee' \
+        --post_author="$WORDPRESS_USER" \
         --post_status=publish --porcelain --allow-root --path=/var/www/html)
 
-    BLOG_PAGE_ID=$(wp post create --post_type=page --post_title='Posts' --post_status=publish --porcelain \
-        --allow-root --path=/var/www/html)
-
+    # Set the front page to the "Inception Project" page
     wp option update show_on_front 'page' --allow-root --path=/var/www/html
     wp option update page_on_front $POST_ID --allow-root --path=/var/www/html
+
+    # Optionally, set the "Comments Board" post as a blog page (or for posts)
+    BLOG_PAGE_ID=$(wp post create --post_type=page --post_title='Posts' --post_author="$WORDPRESS_USER" \
+        --post_status=publish --porcelain --allow-root --path=/var/www/html)
+
     wp option update page_for_posts $BLOG_PAGE_ID --allow-root --path=/var/www/html
 
-    echo "WordPress customization complete!"
-
+    echo "User created and WordPress customization complete!"
 fi
 chown -R www-data:www-data /var/www/html
 
-exec '$@'
+exec "$@"

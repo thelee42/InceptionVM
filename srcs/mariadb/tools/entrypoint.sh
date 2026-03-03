@@ -45,4 +45,4 @@ else
     echo ">>> ibdata1 found, skipping initialization"
 fi
 
-exec '$@'
+exec "$@"
