@@ -20,7 +20,8 @@ services:
     networks:
       - inception_network
     environment:
-      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_PORT: ${WORDPRESS_DB_PORT}
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}

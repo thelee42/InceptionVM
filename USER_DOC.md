@@ -156,4 +156,14 @@ curl -vI https://thelee.42.fr/
 openssl s_client -tls1_2 thelee.42.fr:443
 ```
 
+### Database
 
+```bash
+docker exec -it <container_name_or_id> bash
+mysql -u root -p
+SHOW DATABASES;
+USE <database_name>;
+SHOW TABLES;
+DESCRIBE <table>;
+SELECT <field> FROM <table>
+```
