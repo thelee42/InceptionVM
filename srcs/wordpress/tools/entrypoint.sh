@@ -32,7 +32,6 @@ else
     exit 1
 fi
 
-DB_HOST="$WORDPRESS_DB_HOST:$WORDPRESS_DB_PORT"
 
 until mysqladmin ping -h"$WORDPRESS_DB_HOST" -P "$WORDPRESS_DB_PORT" --silent 2>/dev/null; do
     echo "Waiting for database connection..."
@@ -46,7 +45,7 @@ if [ ! -f wp-config.php ]; then
         --dbname=$WORDPRESS_DB_NAME \
         --dbuser=$WORDPRESS_DB_USER \
         --dbpass=$WORDPRESS_DB_PASSWORD \
-        --dbhost=$DB_HOST \
+        --dbhost="$WORDPRESS_DB_HOST:$WORDPRESS_DB_PORT" \
         --path=/var/www/html
         
     wp core install --allow-root \
